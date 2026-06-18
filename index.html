@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Get Key</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4087692563702742"
+     crossorigin="anonymous"></script>
+<style>
+  :root { --bg:#0d0d12; --card:#16161d; --accent:#6c5ce7; --text:#e8e8ef; --muted:#8a8a9a; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:system-ui,sans-serif; background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; padding:24px; gap:24px; }
+  .ad { width:100%; max-width:728px; min-height:90px; }
+  .card { background:var(--card); border:1px solid #25252f; border-radius:16px;
+    padding:40px; max-width:440px; width:100%; text-align:center; }
+  h1 { font-size:1.6rem; margin-bottom:8px; }
+  p { color:var(--muted); margin-bottom:24px; line-height:1.5; }
+  button { background:var(--accent); color:#fff; border:none; border-radius:10px;
+    padding:14px 28px; font-size:1rem; font-weight:600; cursor:pointer; width:100%; }
+  button:hover { filter:brightness(1.1); }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .key { margin-top:24px; background:#0b0b10; border:1px dashed #33333f; border-radius:10px;
+    padding:16px; font-family:monospace; word-break:break-all; display:none; }
+  .key.show { display:block; }
+  .copy { margin-top:12px; background:#25252f; }
+  .meta { font-size:.8rem; color:var(--muted); margin-top:8px; }
+  .err { color:#ff6b6b; margin-top:16px; min-height:1.2em; }
+</style>
+</head>
+<body>
+  <!-- Top display ad -->
+  <ins class="adsbygoogle ad"
+       style="display:block"
+       data-ad-client="ca-pub-4087692563702742"
+       data-ad-slot="2025907427"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+
+  <div class="card">
+    <h1>Get Your Key</h1>
+    <p>Click below to generate a key valid for 24 hours.</p>
+    <button id="gen">Generate Key</button>
+    <div class="err" id="err"></div>
+    <div class="key" id="keybox">
+      <div id="keyval"></div>
+      <div class="meta" id="keymeta"></div>
+      <button class="copy" id="copy">Copy Key</button>
+    </div>
+  </div>
+
+  <!-- Bottom display ad -->
+  <ins class="adsbygoogle ad"
+       style="display:block"
+       data-ad-client="ca-pub-4087692563702742"
+       data-ad-slot="2025907427"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+  (adsbygoogle = window.adsbygoogle || []).push({});
+
+  const gen = document.getElementById("gen");
+  const err = document.getElementById("err");
+  const keybox = document.getElementById("keybox");
+  const keyval = document.getElementById("keyval");
+  const keymeta = document.getElementById("keymeta");
+  const copy = document.getElementById("copy");
+
+  gen.onclick = () => {
+    err.textContent = "";
+    gen.disabled = true;
+    gen.textContent = "Generating...";
+    fetch("/issue", { method: "POST", headers: { "Content-Type": "application/json" } })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.key) {
+          keyval.textContent = data.key;
+          keymeta.textContent = "Expires: " + new Date(data.expiresAt).toLocaleString();
+          keybox.classList.add("show");
+          gen.style.display = "none";
+        } else {
+          err.textContent = data.error || "Could not generate key.";
+          gen.disabled = false;
+          gen.textContent = "Generate Key";
+        }
+      })
+      .catch(() => {
+        err.textContent = "Network error.";
+        gen.disabled = false;
+        gen.textContent = "Generate Key";
+      });
+  };
+
+  copy.onclick = () => {
+    navigator.clipboard.writeText(keyval.textContent);
+    copy.textContent = "Copied!";
+    setTimeout(() => (copy.textContent = "Copy Key"), 1500);
+  };
+</script>
+</body>
+</html>
